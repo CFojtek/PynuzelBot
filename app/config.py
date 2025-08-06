@@ -10,7 +10,7 @@ def get_config() -> dict[str, str]:
         if config is not None:
             return config
 
-        with open("app/secrets.json", "r") as f:
+        with open("docker.secrets.json", "r") as f:
             config = json.load(f)
         return config
 

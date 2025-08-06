@@ -3,14 +3,14 @@ name = "pynuzel_bot"
 version = "0.1.0"
 description = "Signal chat bot for our yearly trip"
 authors = [
-    {name = "Christian Fojtek",email = "christian.fojtek@hotmail.com"}
+    { name = "Christian Fojtek", email = "christian.fojtek@hotmail.com" },
 ]
-readme = "../README.md"
+readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "signalbot (>=0.16.0,<0.17.0)",
-    "pyairtable (>=3.1.1,<4.0.0)"
-]
+dependencies = ["signalbot (>=0.16.0,<0.17.0)", "pyairtable (>=3.1.1,<4.0.0)"]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

@@ -208,4 +208,5 @@ __marimo__/
 
 # Project specific
 signal-cli-config/
-secrets.json
+dev.secrets.json
+docker.secrets.json
