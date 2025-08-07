@@ -1,1 +1,1 @@
-App code for the PynuzelBot
+Placeholder for Poetry

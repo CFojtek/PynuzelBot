@@ -2,7 +2,7 @@
 # Use slim version for smaller image size
 FROM python:3.12-slim AS builder
 
-# Install poetry and add it to PATH
+# Install poetry
 RUN pip install poetry==2.1.3
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
@@ -12,10 +12,9 @@ ENV POETRY_NO_INTERACTION=1 \
 # Set working directory
 WORKDIR /app
 
-# Create venv (poetry needs readme in root dir, so we create empty one)
-RUN touch README.md
-COPY pyproject.toml poetry.lock ./
-COPY pynuzel_bot ./pynuzel_bot
+# Create venv
+COPY app/pyproject.toml app/poetry.lock app/README.md ./
+COPY app/pynuzel_bot ./pynuzel_bot
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev
 
 # Second Pyton image used for run time
@@ -30,9 +29,7 @@ ENV VIRTUAL_ENV=/app/.venv \
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 # Copy the rest of the app code
-COPY config.py main.py docker.secrets.json ./
-COPY pynuzel_bot ./pynuzel_bot
-COPY signal-cli-config ./signal-cli-config
+COPY app/ ./
 
 # Run the application
 ENTRYPOINT ["python", "-m", "main"]

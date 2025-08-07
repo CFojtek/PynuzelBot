@@ -1,35 +1,34 @@
 import logging
+from typing import Optional
 
 from signalbot import SignalBot
 
 from pynuzel_bot.commands import command_list
 
 
-class PynuzelBot:
-    def __init__(self, signal_service: str, phone_number: str) -> None:
-        self.signal_service: str = signal_service
-        self.phone_number: str = phone_number
+def initizialize_bot(
+    signal_service: str, phone_number: str, storage: Optional[str] = None
+) -> SignalBot:
+    bot: SignalBot = SignalBot(
+        config={
+            "signal_service": signal_service,
+            "phone_number": phone_number,
+            "storage": storage,
+        }
+    )
+    for command in command_list:
+        bot.register(command())
 
-        self.bot: SignalBot = SignalBot(
-            config={
-                "signal_service": self.signal_service,
-                "phone_number": self.phone_number,
-                "storage": None,
-            }
-        )
+    logging.info(
+        f"Pynuzel bot initialized for phone number ending in {phone_number[-2:]}"
+    )
+    return bot
 
-        self.register_handlers()
-        logging.info(f"Bot started for phone number ending in {phone_number[-2:]}")
 
-    def register_handlers(self) -> None:
-        for command in command_list:
-            self.bot.register(command())
-
-    def start(self) -> None:
-        logging.info("Starting Pynuzel bot...")
-
-        try:
-            self.bot.start()
-        except Exception:
-            logging.error("Error starting Pynuzel bot")
-            raise
+def start_bot(bot: SignalBot) -> None:
+    logging.info("Starting Pynuzel bot...")
+    try:
+        bot.start()
+    except Exception:
+        logging.error("Error starting Pynuzel bot")
+        raise

@@ -1,3 +1,4 @@
+import os
 import random
 from dataclasses import dataclass
 from datetime import datetime
@@ -7,9 +8,7 @@ from zoneinfo import ZoneInfo
 from pyairtable import Api
 from pyairtable.formulas import IS_BEFORE, Field
 
-from config import get_config
-
-config = get_config()
+AIRTABLE_BASE_ID = "appFvepvOj3Z8F58o"
 
 
 @dataclass
@@ -25,10 +24,18 @@ class Joke:
     description: str
 
 
+def authenticate() -> Api:
+    api_token = os.environ.get("AIRTABLE_TOKEN")
+    if not api_token:
+        raise ValueError("AIRTABLE_TOKEN environment variable is required")
+
+    return Api(api_token)
+
+
 def get_latest_intel() -> Optional[Intel]:
-    api = Api(config["AIRTABLE_TOKEN"])
+    api = authenticate()
     table = api.table(
-        "appFvepvOj3Z8F58o",
+        AIRTABLE_BASE_ID,
         "Intel",
     )
 
@@ -52,9 +59,9 @@ def get_latest_intel() -> Optional[Intel]:
 
 
 def get_random_joke() -> Optional[Joke]:
-    api = Api(config["AIRTABLE_TOKEN"])
+    api = authenticate()
     table = api.table(
-        "appFvepvOj3Z8F58o",
+        AIRTABLE_BASE_ID,
         "Joke",
     )
 

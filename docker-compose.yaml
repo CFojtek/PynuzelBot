@@ -6,6 +6,8 @@ services:
       context: ./
       dockerfile: dockerfile
       target: runtime
+    environment:
+      - SIGNAL_SERVICE=signal-cli:8080
     depends_on:
       - signal-cli
 
@@ -14,6 +16,6 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./signal-cli-config:/home/.local/share/signal-cli
+      - ./app/signal-cli-config:/home/.local/share/signal-cli
     environment:
       - MODE=json-rpc

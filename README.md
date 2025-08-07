@@ -29,12 +29,16 @@ Install the python dependencies and activate the environment
 poetry install
 evel $(poetry env activate)
 ```
+
 and run `main.py`
+The signal service is running on `127.0.0.1:8080` (localhost)
 
 
 ### Docker
 
-Run `docker compose up`
+Everythign is handled in the dockerfile, just run `docker compose up` in the rook directory
+
+The signal service is running on `signal-cli:8080` (signal-cli container)
 
 
 ## Infrastructure

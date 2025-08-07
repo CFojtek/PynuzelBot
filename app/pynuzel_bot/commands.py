@@ -36,7 +36,6 @@ class IntelCommand(Command):
                 )
                 return
             await context.send(intel.description)
-            return
 
 
 class JokeCommand(Command):

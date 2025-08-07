@@ -1,0 +1,8 @@
+app/.venv
+app/*.pyc
+app/dist
+app.egg
+app/.gitignore
+app/ruff.toml
+
+__pycache__
