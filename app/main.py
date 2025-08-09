@@ -16,24 +16,28 @@ if not os.environ.get("SIGNAL_SERVICE"):
 
 
 def main() -> None:
-    signal_service = os.environ.get("SIGNAL_SERVICE")
-    phone_number = os.environ.get("PHONE_NUMBER")
-
-    if not signal_service:
-        raise ValueError("SIGNAL_SERVICE environment variable is required")
-    if not phone_number:
-        raise ValueError("PHONE_NUMBER environment variable is required")
-
     try:
+        signal_service = os.environ["SIGNAL_SERVICE"]
+        phone_number = os.environ["PHONE_NUMBER"]
+        groups = [os.environ["USER_GROUP"], os.environ["ADMIN_GROUP"]]
+
         bot: SignalBot = initizialize_bot(
-            signal_service=signal_service, phone_number=phone_number, storage=None
+            signal_service=signal_service,
+            phone_number=phone_number,
+            groups=groups,
+            storage=None,
         )
+
+        logging.info("Starting Pynuzel bot...")
         bot.start()
 
     except KeyboardInterrupt:
-        logging.info(msg="Bot stopped by user")
+        logging.info("Bot stopped by user")
+    except KeyError as e:
+        logging.error(msg=f"Missing environment variable: {e}", exc_info=True)
+        raise
     except Exception as e:
-        logging.error(msg=f"Bot went into an error: {e}", exc_info=True)
+        logging.error(f"Bot went into an error: {e}", exc_info=True)
         raise
 
 

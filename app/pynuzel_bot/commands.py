@@ -1,55 +1,75 @@
-from typing import LiteralString
+import os
+from typing import Optional
 
 from signalbot import Command, Context
 
-from pynuzel_bot.airtable import get_latest_intel, get_random_joke
+from pynuzel_bot.airtable import (
+    Message,
+    get_help_message,
+    get_latest_intel,
+    get_random_joke,
+)
 
-HELP_MESSAGE: LiteralString = """
-*Krr Krr* UnuzelHQ reporting in. To guide you through this zombie apocalypse, you can use following commands.
+CMD_IDENTIFIER: str = "/"
 
-    ❓ /help - See a list of available commands from HQ
-    ℹ️ /intel - Get the latest intel from HQ
-    🤣 /joke - A much needed distraction in these dire times
 
-OVER
-"""
+def create_payload(message: Optional[Message], command_identifier: str) -> str:
+    return (
+        message.text
+        if message
+        else f"Connection lost with HQ. No {command_identifier} available at the moment."
+    )
 
 
 class HelpCommand(Command):
+    def setup(self):
+        self.str_identifier: str = "help"
+
     async def handle(self, context: Context) -> None:
         command: str = context.message.text
 
-        if command.lower().strip() == "/help":
-            await context.send(HELP_MESSAGE)
+        if not command.lower().strip() == f"{CMD_IDENTIFIER}{self.str_identifier}":
             return
+
+        help = get_help_message()
+        recipient = os.environ["USER_GROUP"]
+        payload = create_payload(help, self.str_identifier)
+
+        await context.bot.send(recipient, payload)
 
 
 class IntelCommand(Command):
+    def setup(self):
+        self.str_identifier: str = "intel"
+
     async def handle(self, context: Context) -> None:
         command: str = context.message.text
 
-        if command.lower().strip() == "/intel":
-            intel = get_latest_intel()
-            if not intel:
-                await context.send(
-                    "Connection lost with HQ. No intel available at the moment."
-                )
-                return
-            await context.send(intel.description)
+        if not command.lower().strip() == f"{CMD_IDENTIFIER}{self.str_identifier}":
+            return
+
+        intel = get_latest_intel()
+        recipient = os.environ["USER_GROUP"]
+        payload = create_payload(intel, self.str_identifier)
+
+        await context.bot.send(recipient, payload)
 
 
 class JokeCommand(Command):
+    def setup(self):
+        self.str_identifier: str = "joke"
+
     async def handle(self, context: Context) -> None:
         command: str = context.message.text
 
-        if command.lower().strip() == "/joke":
-            joke = get_random_joke()
-            if not joke:
-                await context.send(
-                    "Connection lost with HQ. No jokes available at the moment."
-                )
-                return
-            await context.send(joke.description)
+        if not command.lower().strip() == f"{CMD_IDENTIFIER}{self.str_identifier}":
+            return
+
+        joke = get_random_joke()
+        recipient = os.environ["USER_GROUP"]
+        payload = create_payload(joke, self.str_identifier)
+
+        await context.bot.send(recipient, payload)
 
 
 command_list: list[type[HelpCommand] | type[IntelCommand] | type[JokeCommand]] = [

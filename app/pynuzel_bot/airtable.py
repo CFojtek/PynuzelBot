@@ -2,26 +2,34 @@ import os
 import random
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 from zoneinfo import ZoneInfo
 
 from pyairtable import Api
+from pyairtable.api.table import Table
 from pyairtable.formulas import IS_BEFORE, Field
 
-AIRTABLE_BASE_ID = "appFvepvOj3Z8F58o"
+
+@dataclass
+class HelpMessage:
+    id: int
+    text: str
 
 
 @dataclass
-class Intel:
+class IntelMessage:
     id: int
     release_date: datetime
-    description: str
+    text: str
 
 
 @dataclass
-class Joke:
+class JokeMessage:
     id: int
-    description: str
+    text: str
+
+
+Message = Union[HelpMessage, IntelMessage, JokeMessage]
 
 
 def authenticate() -> Api:
@@ -32,12 +40,35 @@ def authenticate() -> Api:
     return Api(api_token)
 
 
-def get_latest_intel() -> Optional[Intel]:
-    api = authenticate()
-    table = api.table(
-        AIRTABLE_BASE_ID,
-        "Intel",
+def get_table(context: Api, table_name: str) -> Table:
+    base_id = os.environ.get("AIRTABLE_BASE_ID")
+    if not base_id:
+        raise ValueError("AIRTABLE_BASE_ID environment variable is required")
+
+    return context.table(
+        base_id,
+        table_name,
     )
+
+
+def get_help_message() -> Optional[HelpMessage]:
+    context = authenticate()
+    table = get_table(context, "Help")
+
+    records = table.all(max_records=1)
+    if not records:
+        return None
+    record = records[0]
+
+    return HelpMessage(
+        id=record["fields"]["Id"],
+        text=record["fields"]["Text"],
+    )
+
+
+def get_latest_intel() -> Optional[IntelMessage]:
+    context = authenticate()
+    table = get_table(context, "Intel")
 
     now = datetime.now(ZoneInfo("UTC"))
     formula = IS_BEFORE(Field("ReleaseDate"), now)
@@ -51,26 +82,23 @@ def get_latest_intel() -> Optional[Intel]:
         return None
     record = records[0]
 
-    return Intel(
+    return IntelMessage(
         id=record["fields"]["Id"],
         release_date=datetime.fromisoformat(record["fields"]["ReleaseDate"]),
-        description=record["fields"]["Description"],
+        text=record["fields"]["Text"],
     )
 
 
-def get_random_joke() -> Optional[Joke]:
-    api = authenticate()
-    table = api.table(
-        AIRTABLE_BASE_ID,
-        "Joke",
-    )
+def get_random_joke() -> Optional[JokeMessage]:
+    context = authenticate()
+    table = get_table(context, "Joke")
 
     records = table.all()
     if not records:
         return None
     record = random.choice(records)
 
-    return Joke(
+    return JokeMessage(
         id=record["fields"]["Id"],
-        description=record["fields"]["Description"],
+        text=record["fields"]["Text"],
     )
