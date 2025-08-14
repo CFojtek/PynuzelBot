@@ -1,4 +1,4 @@
-import os
+import asyncio
 from typing import Optional
 
 from signalbot import Command, Context
@@ -22,7 +22,9 @@ def create_payload(message: Optional[Message], command_identifier: str) -> str:
 
 
 class HelpCommand(Command):
-    def setup(self):
+    def __init__(self, recipients: Optional[list[str]] = None) -> None:
+        super().__init__()
+        self.recipients = recipients
         self.str_identifier: str = "help"
 
     async def handle(self, context: Context) -> None:
@@ -32,14 +34,22 @@ class HelpCommand(Command):
             return
 
         help = get_help_message()
-        recipient = os.environ["USER_GROUP"]
         payload = create_payload(help, self.str_identifier)
 
-        await context.bot.send(recipient, payload)
+        if not self.recipients:
+            recipients = [context.message.group]
+        else:
+            recipients = self.recipients
+
+        await asyncio.gather(
+            *[context.bot.send(recipient, payload) for recipient in recipients]
+        )
 
 
 class IntelCommand(Command):
-    def setup(self):
+    def __init__(self, recipients: Optional[list[str]] = None) -> None:
+        super().__init__()
+        self.recipients = recipients
         self.str_identifier: str = "intel"
 
     async def handle(self, context: Context) -> None:
@@ -49,31 +59,64 @@ class IntelCommand(Command):
             return
 
         intel = get_latest_intel()
-        recipient = os.environ["USER_GROUP"]
         payload = create_payload(intel, self.str_identifier)
 
-        await context.bot.send(recipient, payload)
+        if not self.recipients:
+            recipients = [context.message.group]
+        else:
+            recipients = self.recipients
+
+        await asyncio.gather(
+            *[context.bot.send(recipient, payload) for recipient in recipients]
+        )
 
 
 class JokeCommand(Command):
-    def setup(self):
+    def __init__(self, recipients: Optional[list[str]] = None) -> None:
+        super().__init__()
+        self.recipients = recipients
         self.str_identifier: str = "joke"
 
     async def handle(self, context: Context) -> None:
         command: str = context.message.text
+        # TODO get sender name and fetch joke based on that
 
         if not command.lower().strip() == f"{CMD_IDENTIFIER}{self.str_identifier}":
             return
 
         joke = get_random_joke()
-        recipient = os.environ["USER_GROUP"]
         payload = create_payload(joke, self.str_identifier)
 
-        await context.bot.send(recipient, payload)
+        if not self.recipients:
+            recipients = [context.message.group]
+        else:
+            recipients = self.recipients
+
+        await asyncio.gather(
+            *[context.bot.send(recipient, payload) for recipient in recipients]
+        )
 
 
-command_list: list[type[HelpCommand] | type[IntelCommand] | type[JokeCommand]] = [
-    HelpCommand,
-    IntelCommand,
-    JokeCommand,
-]
+class ForwardCommand(Command):
+    def __init__(self, recipients: Optional[list[str]] = None) -> None:
+        super().__init__()
+        self.recipients = recipients
+        self.str_identifier: str = "forward"
+
+    async def handle(self, context: Context) -> None:
+        command: str = context.message.text
+        identifier = f"{CMD_IDENTIFIER}{self.str_identifier}"
+
+        if not command.lower().startswith(identifier):
+            return
+
+        payload = command.split(identifier, 1)[1].strip()
+
+        if not self.recipients:
+            recipients = [context.message.group]
+        else:
+            recipients = self.recipients
+
+        await asyncio.gather(
+            *[context.bot.send(recipient, payload) for recipient in recipients]
+        )
