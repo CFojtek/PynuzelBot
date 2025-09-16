@@ -36,7 +36,7 @@ The signal service is running on `127.0.0.1:8080` (localhost)
 
 ### Docker
 
-Everythign is handled in the dockerfile, just run `docker compose up` in the rook directory
+Everythign is handled in the dockerfile, just run `docker compose up` in the root directory
 
 The signal service is running on `signal-cli:8080` (signal-cli container)
 
@@ -45,19 +45,27 @@ The signal service is running on `signal-cli:8080` (signal-cli container)
 
 The app runs in a containerized instance on Azure.
 
-Infrastructure is handled by Terraform and can be provisioned by running
+Infrastructure is handled by Terraform
+
+## Deployment
+
+First run the Terraform commands to provision the infra. The container group will fail for now, but this is no problem.
 ```
 terraform init
 terraform plan -out .tfplan
 terraform apply .tfplan
 ```
 
-## Deployment
+Now tag and push both docker images to the Azure container registry
+```
+docker tag bbernhard/signal-cli-rest-api:latest pynuzelbotcr.azurecr.io/bbernhard/signal-cli-rest-api:latest && docker push pynuzelbotcr.azurecr.io/bbernhard/signal-cli-rest-api:latest
+docker tag signal-bot:latest pynuzelbotcr.azurecr.io/signal-bot:latest && docker push pynuzelbotcr.azurecr.io/signal-bot:latest
+```
 
+Additionally, go to the Azure portal and find the file share inside the storage account. Upload the contents of `signal-cli-config` into the folder with the same name.
+
+Rerun the Terraform commands. Container group will now also be created since the docker images are available in the container registry.
 
 # TODO
-- Fix secrets in docker file
-- add terraform code
-- run and test on cloud
-- get separate signal number (pref BE one)
-- write readme
+- Reduce logging to warning and redeploy everything
+- Remove log analytics workspace in terraform?

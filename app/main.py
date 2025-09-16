@@ -1,15 +1,15 @@
 import logging
 import os
 
+from dotenv import load_dotenv
 from signalbot import SignalBot
 
 from pynuzel_bot.commands import ForwardCommand, HelpCommand, IntelCommand, JokeCommand
-from pynuzel_bot.env import load_secrets_to_env
 
 logging.getLogger().setLevel(logging.INFO)
-logging.getLogger("apscheduler").setLevel(logging.WARNING)
+logging.getLogger("apscheduler").setLevel(logging.INFO)
 
-load_secrets_to_env()
+load_dotenv()
 # Default to localhost if not provided
 if not os.environ.get("SIGNAL_SERVICE"):
     os.environ["SIGNAL_SERVICE"] = "127.0.0.1:8080"
@@ -24,6 +24,10 @@ def main() -> None:
         signal_service = os.environ["SIGNAL_SERVICE"]
         phone_number = os.environ["PHONE_NUMBER"]
         groups = [os.environ["USER_GROUP"], os.environ["ADMIN_GROUP"]]
+
+        logging.info(signal_service)
+        logging.info(phone_number)
+        logging.info(groups)
 
         bot: SignalBot = SignalBot(
             config={

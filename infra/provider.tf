@@ -5,9 +5,10 @@ terraform {
             version = "=4.40.0"
         }
     }
-    required_version = "~> 1.12.0"
+    required_version = "~> 1.13.0"
 }
 
 provider "azurerm" {
+    subscription_id = var.subscription_id
     features {}
 }

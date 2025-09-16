@@ -4,5 +4,6 @@ app/dist
 app.egg
 app/.gitignore
 app/ruff.toml
+app/.env
 
 __pycache__

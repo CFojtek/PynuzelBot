@@ -1,20 +1,22 @@
-name: pynuzel-bot:latest
 services:
   pynuzel-bot:
-    container_name: pynuzel_bot_app
+    image: signal-bot:latest
+    container_name: pynuzel-bot
     build:
       context: ./
       dockerfile: dockerfile
       target: runtime
     environment:
       - SIGNAL_SERVICE=signal-cli:8080
+    env_file:
+      - ./app/.env
     depends_on:
       - signal-cli
 
   signal-cli:
     image: bbernhard/signal-cli-rest-api:latest
     ports:
-      - "8080:8080"
+      - 8080:8080
     volumes:
       - ./app/signal-cli-config:/home/.local/share/signal-cli
     environment:
