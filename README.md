@@ -64,8 +64,9 @@ docker tag signal-bot:latest pynuzelbotcr.azurecr.io/signal-bot:latest && docker
 
 Additionally, go to the Azure portal and find the file share inside the storage account. Upload the contents of `signal-cli-config` into the folder with the same name.
 
+Lastly, add the secrets to the key vault.
+
 Rerun the Terraform commands. Container group will now also be created since the docker images are available in the container registry.
 
 # TODO
 - Reduce logging to warning and redeploy everything
-- Remove log analytics workspace in terraform?

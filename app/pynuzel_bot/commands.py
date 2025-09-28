@@ -1,4 +1,6 @@
 import asyncio
+import json
+import logging
 from typing import Optional
 
 from signalbot import Command, Context
@@ -7,7 +9,7 @@ from pynuzel_bot.airtable import (
     Message,
     get_help_message,
     get_latest_intel,
-    get_random_joke,
+    get_random_joke_by_subjects,
 )
 
 CMD_IDENTIFIER: str = "/"
@@ -79,12 +81,15 @@ class JokeCommand(Command):
 
     async def handle(self, context: Context) -> None:
         command: str = context.message.text
-        # TODO get sender name and fetch joke based on that
 
         if not command.lower().strip() == f"{CMD_IDENTIFIER}{self.str_identifier}":
             return
 
-        joke = get_random_joke()
+        raw_message = json.loads(context.message.raw_message)
+        sender_first_name = raw_message["envelope"].get("sourceName").split(" ")[0]
+        logging.warning(sender_first_name)
+
+        joke = get_random_joke_by_subjects(["General", sender_first_name])
         payload = create_payload(joke, self.str_identifier)
 
         if not self.recipients:
