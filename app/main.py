@@ -4,10 +4,10 @@ import os
 from dotenv import load_dotenv
 from signalbot import SignalBot
 
-from pynuzel_bot.commands import ForwardCommand, HelpCommand, IntelCommand, JokeCommand
+from pynuzel_bot.commands import HelpCommand, IntelCommand, JokeCommand, PushCommand
 
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger("apscheduler").setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.WARNING)
+logging.getLogger("apscheduler").setLevel(logging.WARNING)
 
 load_dotenv()
 # Default to localhost if not provided
@@ -16,7 +16,7 @@ if not os.environ.get("SIGNAL_SERVICE"):
 
 
 USER_CMDS = [HelpCommand, IntelCommand, JokeCommand]
-ADMIN_CMDS = USER_CMDS + [ForwardCommand]
+ADMIN_CMDS = USER_CMDS + [PushCommand]
 
 
 def main() -> None:
@@ -24,10 +24,6 @@ def main() -> None:
         signal_service = os.environ["SIGNAL_SERVICE"]
         phone_number = os.environ["PHONE_NUMBER"]
         groups = [os.environ["USER_GROUP"], os.environ["ADMIN_GROUP"]]
-
-        logging.info(signal_service)
-        logging.info(phone_number)
-        logging.info(groups)
 
         bot: SignalBot = SignalBot(
             config={

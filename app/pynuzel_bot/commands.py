@@ -1,6 +1,5 @@
 import asyncio
 import json
-import logging
 from typing import Optional
 
 from signalbot import Command, Context
@@ -87,7 +86,6 @@ class JokeCommand(Command):
 
         raw_message = json.loads(context.message.raw_message)
         sender_first_name = raw_message["envelope"].get("sourceName").split(" ")[0]
-        logging.warning(sender_first_name)
 
         joke = get_random_joke_by_subjects(["General", sender_first_name])
         payload = create_payload(joke, self.str_identifier)
@@ -102,11 +100,11 @@ class JokeCommand(Command):
         )
 
 
-class ForwardCommand(Command):
+class PushCommand(Command):
     def __init__(self, recipients: Optional[list[str]] = None) -> None:
         super().__init__()
         self.recipients = recipients
-        self.str_identifier: str = "forward"
+        self.str_identifier: str = "push"
 
     async def handle(self, context: Context) -> None:
         command: str = context.message.text

@@ -56,6 +56,8 @@ terraform plan -out .tfplan
 terraform apply .tfplan
 ```
 
+Log in to the container registry by running `az acr login --name pynuzelbotcr.azurecr.io`. Now Docker can access and push images to the registry.
+
 Now tag and push both docker images to the Azure container registry
 ```
 docker tag bbernhard/signal-cli-rest-api:latest pynuzelbotcr.azurecr.io/bbernhard/signal-cli-rest-api:latest && docker push pynuzelbotcr.azurecr.io/bbernhard/signal-cli-rest-api:latest
@@ -67,6 +69,3 @@ Additionally, go to the Azure portal and find the file share inside the storage 
 Lastly, add the secrets to the key vault.
 
 Rerun the Terraform commands. Container group will now also be created since the docker images are available in the container registry.
-
-# TODO
-- Reduce logging to warning and redeploy everything

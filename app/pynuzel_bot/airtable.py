@@ -1,4 +1,3 @@
-import logging
 import os
 import random
 from dataclasses import dataclass
@@ -117,13 +116,10 @@ def get_random_joke_by_subjects(subjects: list[str]) -> Optional[JokeMessage]:
         for subject in subjects
         if (result := process.extractOne(subject, unique_subjects)) is not None
     ]
-    logging.warning(fuzzy_subjects)
     records = get_records_by_field_values("Joke", "Subject", fuzzy_subjects)
     if not records:
         return None
-    logging.warning(records)
     record = random.choice(records)
-    logging.warning(record)
 
     return JokeMessage(
         id=record["fields"]["Id"],
@@ -157,6 +153,5 @@ def get_records_by_field_values(
     table = get_table(context, table_name)
     condition = [f'{{{field_name}}}="{v}"' for v in values]
     formula = f"OR({', '.join(condition)})"
-    logging.warning(formula)
     records = table.all(formula=formula)
     return records
